@@ -44,12 +44,13 @@ const authSlice = createSlice({
 export const login = createAsyncThunk(
   "user/login",
   async ({ email, password }, { rejectWithValue }) => {
-    function checkRoles(allowRoles, roles) {
-      for (let role of roles) {
-        if (allowRoles.includes(role)) {
-          return true;
-        }
+    function checkRoles(allowRoles, role) {
+      console.log({ allowRoles, role });
+      if (allowRoles.includes(role)) {
+        console.log("true");
+        return true;
       }
+      console.log("!true");
       return false;
     }
     try {
@@ -57,42 +58,33 @@ export const login = createAsyncThunk(
         `/auth/login`,
         JSON.stringify({ email, password })
       );
-      if (res.status === 200) {
-        if (res.data.message === "Login successfully") {
-          Cookies.set("access_token", res?.data?.data?.access_token);
-          const allowRoles = ["admin", "superadmin", "publisher"];
-          const role = jwt_decode(res?.data?.data?.access_token);
-          if (checkRoles(allowRoles, role?.roles)) {
-            const resUser = await instance.get(`/users/find`);
-            const user = {
-              id: resUser?.data?.data?.id ?? "",
-              id_user: resUser?.data?.data?.user_idUser ?? "",
-              firstName: resUser?.data?.data?.first_name ?? "",
-              lastName: resUser?.data?.data?.last_name ?? "",
-              avatar: resUser?.data?.data?.avatar ?? "",
-              mobile: resUser?.data?.data?.mobile ?? "",
-              address: resUser?.data?.data?.address ?? "",
-              dateOfBirth: resUser?.data?.data?.date_of_birth ?? "",
-              defaultAddress: resUser?.data?.data?.default_address ?? "",
-              shipAddress: resUser?.data?.data?.ship_address ?? "",
-              roles: role?.roles,
-            };
-            return { user };
-          } else {
-            return "Bạn không được quyền truy cập vào tài nguyên này!";
-          }
+      console.log(res?.data?.accessToken);
+      if (res.status == 200) {
+        const response = res.data.user;
+        Cookies.set("access_token", res?.data?.accessToken);
+        const allowRoles = ["ADMIN", "SUPERADMIN"];
+
+        if (checkRoles(allowRoles, response?.role)) {
+          const user = {
+            id: response?.id ?? "",
+            email: response?.email ?? "",
+            fullName: response?.fullName ?? "",
+            avatar: response?.imageUrl ?? "",
+            phone: response?.phone ?? "",
+            address: response?.address ?? "",
+            agencyRole: response?.agencyRole ?? "",
+            branchId: response?.branchId ?? "",
+            role: response?.role ?? "",
+          };
+          return { user };
         } else {
-          return res.data.message;
+          return "Bạn không được quyền truy cập vào tài nguyên này!";
         }
       } else {
         throw rejectWithValue(res.data.message);
       }
     } catch (error) {
-      if (error.payload) {
-        throw rejectWithValue(error.payload);
-      } else {
-        throw error;
-      }
+      throw error;
     }
   }
 );

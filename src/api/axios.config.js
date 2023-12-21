@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 
 const instance = axios.create({
-  baseURL: "https://dev-api.greenbook.site/api/v1/",
+  baseURL: "http://localhost:5000/api/",
   headers: {
     "Content-Type": "application/json",
   },

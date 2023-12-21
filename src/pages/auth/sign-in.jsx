@@ -30,17 +30,8 @@ export function SignIn() {
 
   useEffect(() => {
     const checkError = () => {
-      if (currentUser?.firstName && currentUser?.lastName) {
-        if (currentUser?.roles.includes("publisher")) {
-          navigate("/dashboard/books");
-        } else {
-          navigate("/dashboard/home");
-        }
-      } else if (
-        currentUser === "User is not verified. Email re-confirmed is sent"
-      ) {
-        setColor("#980303");
-        notify(currentUser);
+      if (isLoggedIn) {
+        navigate("/dashboard/home");
       } else if (currentUser.length > 0) {
         setColor("#980303");
         notify(currentUser);
@@ -71,7 +62,7 @@ export function SignIn() {
       };
       dispatch(login(user))
         .then(unwrapResult)
-        .then(() => setMiddle(!middle))
+        .then(setMiddle(!middle))
         .catch((err) => {
           notify(err.message);
         });

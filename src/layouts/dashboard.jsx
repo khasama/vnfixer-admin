@@ -35,7 +35,7 @@ export function Dashboard() {
   }, []);
 
   useEffect(() => {
-    // isLogged == false && navigate("/auth/sign-in");
+    isLogged == false && navigate("/auth/sign-in");
   }, [isLogged]);
 
   return (
