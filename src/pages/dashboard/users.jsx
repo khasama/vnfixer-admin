@@ -43,81 +43,6 @@ import { debounce } from "lodash";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const MultiSelect = (props) => {
-  const [selected, setSelected] = useState(
-    props.selected.map((select) => select.name)
-  );
-  const [selectedIds, setSelectedIds] = useState(
-    props.selected.map((select) => select.id)
-  );
-  useEffect(() => {
-    props.onUpdate(selected);
-  }, [selected]);
-
-  return (
-    <FormControl variant="standard" sx={{ width: "100%" }}>
-      <InputLabel variant="standard" sx={{ width: "100%" }}>
-        <span className="pl-7 text-xs">{props.title}</span>
-      </InputLabel>
-      <Select
-        sx={{
-          boxShadow: "none",
-          ".MuiOutlinedInput-notchedOutline": {
-            border: 0,
-            borderBottom: "1px solid rgb(176, 190, 197)",
-            borderRadius: 0,
-            width: "100%",
-          },
-        }}
-        multiple
-        variant="standard"
-        value={selected}
-        onChange={(e) => setSelected(e.target.value)}
-        input={<OutlinedInput label="Multiple Select" />}
-        renderValue={(selected) => (
-          <Stack gap={1} direction="row" flexWrap="wrap" variant="standard">
-            {selected.map((value, index) => (
-              <Chip
-                key={value}
-                label={value}
-                onDelete={() => {
-                  setSelected(selected.filter((item) => item !== value)),
-                    setSelectedIds(selectedIds.splice(index, 1));
-                }}
-                deleteIcon={
-                  <CancelIcon
-                    onMouseDown={(event) => event.stopPropagation()}
-                  />
-                }
-              />
-            ))}
-          </Stack>
-        )}
-      >
-        {props.data.map((item) => (
-          <MenuItem
-            key={item}
-            onClick={() => {
-              if (selectedIds.includes(item)) {
-                setSelectedIds(selectedIds.filter((id) => id !== item));
-              } else {
-                setSelectedIds([...selectedIds, item]);
-              }
-            }}
-            value={item}
-            sx={{ justifyContent: "space-between" }}
-          >
-            {item}
-            {JSON.stringify(selected).includes(item) ? (
-              <CheckIcon color="info" />
-            ) : null}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
-};
-
 export function Users() {
   const [page, setPage] = useState(1);
   const users = useSelector(usersSelector);
@@ -126,7 +51,7 @@ export function Users() {
   const [color, setColor] = useState("#980303");
   const listRole = useRef([]);
   const userId = useRef("");
-  const role = ["anonymous", "user", "publisher", "admin", "superadmin"];
+
   const getItemProps = (index) => ({
     variant: page === index ? "filled" : "text",
     color: page === index ? "blue" : "blue-gray",
@@ -146,14 +71,14 @@ export function Users() {
   };
 
   const handleDeleteUser = async (id) => {
-    try {
-      await dispatch(deleteUser({ id }));
-      notify("Đang xoá!");
-      debouncedUser();
-    } catch (error) {
-      console.log(error.message);
-      notify(error.message);
-    }
+    // try {
+    //   await dispatch(deleteUser({ id }));
+    //   notify("Đang xoá!");
+    //   debouncedUser();
+    // } catch (error) {
+    //   console.log(error.message);
+    //   notify(error.message);
+    // }
   };
 
   const handleUpdateUserRole = () => {
@@ -223,112 +148,81 @@ export function Users() {
       <tr key={props.id}>
         <td className={props.className}>
           <div className="flex items-center gap-4">
-            <Typography
-              variant="small"
-              color="blue-gray"
-              className="font-semibold"
-            >
-              {props.email}
-            </Typography>
+            <Avatar
+              src={props?.image ?? "/img/logo-ct.png"}
+              alt={props.name ?? "Default user"}
+              size="sm"
+            />
+            <div className="flex flex-col items-start">
+              <Typography
+                variant="small"
+                color="blue-gray"
+                className="font-semibold"
+              >
+                {props.email}
+              </Typography>
+              <Typography
+                variant="small"
+                color="blue-gray"
+                className="text-xs font-semibold text-blue-gray-600"
+              >
+                {props.role}
+              </Typography>
+            </div>
           </div>
         </td>
+        <td className={props.className}>
+          <Typography
+            variant="small"
+            className="text-xs font-semibold text-blue-gray-900"
+          >
+            {props.fullName ?? "Default user"}
+          </Typography>
+        </td>
         <td className={`${props.className} hidden lg:table-cell`}>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col items-start gap-2">
+            <Typography
+              variant="small"
+              className="text-xs font-semibold text-blue-gray-900"
+            >
+              {props.address ?? "23 võ văn đặng, đà nẵng"}
+            </Typography>
             <Typography
               variant="small"
               className="text-xs font-semibold text-blue-gray-600"
             >
-              {props.created_at}
+              {props.phone ?? "03825980"}
             </Typography>
           </div>
         </td>
         <td className={props.className}>
           <ChipTailwind
             variant="gradient"
-            color={
-              props.is_verified && JSON.stringify(props.is_verified) == "true"
-                ? "green"
-                : "red"
-            }
-            value={JSON.stringify(props.is_verified)}
+            // color={
+            //   props.is_verified && JSON.stringify(props.is_verified) == "true"
+            //     ? "green"
+            //     : "red"
+            // }
+            value={props.agencyRole}
             className="py-0.5 px-2 text-[11px] font-medium"
           />
         </td>
-        <td className={`${props.className}`}>
-          {showEdit ? (
-            <MultiSelect
-              data={role}
-              selected={props.roles && props.roles}
-              title={"Quyền"}
-              onUpdate={setListRoleMiddle}
-            />
-          ) : (
-            <Typography className="text-xs font-semibold text-blue-gray-600">
-              |{" "}
-              {props?.roles?.map(
-                (role) => role.name + " | " ?? "Đang cập nhật"
-              )}
-            </Typography>
-          )}
+        <td
+          className={props.className}
+          onClick={() => handleDeleteUser(props.id)}
+        >
+          <Tippy content="Xoá">
+            <span>
+              <Typography
+                variant="small"
+                as="p"
+                className="flex items-center justify-center text-xs font-semibold text-red-400"
+              >
+                <FaTrashAlt></FaTrashAlt>
+              </Typography>
+            </span>
+          </Tippy>
         </td>
-        {currentUser.roles.some((e) => e.includes("superadmin")) && (
-          <td
-            className={props.className}
-            onClick={() => {
-              handleShowEdit();
-              setIdMiddle(props.id);
-            }}
-          >
-            {showEdit ? (
-              <div className="flex gap-2">
-                <b
-                  className="cursor-pointer"
-                  onClick={() => {
-                    handleUpdateUserRole();
-                  }}
-                >
-                  <FaCheckCircle className="text-[#03943b]"></FaCheckCircle>
-                </b>
-                <span
-                  className="cursor-pointer"
-                  onClick={() => setShowEdit(false)}
-                >
-                  <FaTimesCircle className="text-[#941903]"></FaTimesCircle>
-                </span>
-              </div>
-            ) : (
-              <Tippy content="Sửa">
-                <span>
-                  <Typography
-                    variant="small"
-                    as="p"
-                    className="flex items-center justify-center text-xs font-semibold text-blue-gray-600"
-                  >
-                    <FaPencilAlt></FaPencilAlt>
-                  </Typography>
-                </span>
-              </Tippy>
-            )}
-          </td>
-        )}
-        {currentUser.roles.some((e) => e.includes("superadmin")) && (
-          <td
-            className={props.className}
-            onClick={() => handleDeleteUser(props.id)}
-          >
-            <Tippy content="Xoá">
-              <span>
-                <Typography
-                  variant="small"
-                  as="p"
-                  className="flex items-center justify-center text-xs font-semibold text-red-400"
-                >
-                  <FaTrashAlt></FaTrashAlt>
-                </Typography>
-              </span>
-            </Tippy>
-          </td>
-        )}
       </tr>
     );
   };
@@ -369,28 +263,23 @@ export function Users() {
             <table className="w-full min-w-[640px] table-auto">
               <thead>
                 <tr>
-                  {[
-                    "Người dùng",
-                    "Ngày tạo",
-                    "Đã xác thực",
-                    "Quyền",
-                    "",
-                    "",
-                  ].map((el, index) => (
-                    <th
-                      key={index}
-                      className={`border-b border-blue-gray-50 py-3 px-5 text-left ${
-                        el == "Ngày tạo" ? "hidden lg:block" : ""
-                      }`}
-                    >
-                      <Typography
-                        variant="small"
-                        className="text-[11px] font-bold uppercase text-blue-gray-400"
+                  {["Email", "Tên", "Liên hệ", "Vai trò đại lý", "", ""].map(
+                    (el, index) => (
+                      <th
+                        key={index}
+                        className={`border-b border-blue-gray-50 py-3 px-5 text-left ${
+                          el == "Ngày tạo" ? "hidden lg:block" : ""
+                        }`}
                       >
-                        {el}
-                      </Typography>
-                    </th>
-                  ))}
+                        <Typography
+                          variant="small"
+                          className="text-[11px] font-bold uppercase text-blue-gray-400"
+                        >
+                          {el}
+                        </Typography>
+                      </th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -407,11 +296,13 @@ export function Users() {
                         key={user.id}
                         id={user.id}
                         className={className}
-                        images={user?.images}
+                        image={user?.imageUrl}
                         email={user?.email}
-                        created_at={user?.created_at}
-                        is_verified={user?.is_verified}
-                        roles={user?.roles}
+                        phone={user?.phone}
+                        fullName={user?.fullName}
+                        address={user?.address}
+                        role={user?.role}
+                        agencyRole={user?.agencyRole}
                       ></User>
                     );
                   })}

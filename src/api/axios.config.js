@@ -1,9 +1,9 @@
+export const baseURL = "http://localhost:5000/api/";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
 
 const instance = axios.create({
-  baseURL: "http://localhost:5000/api/",
+  baseURL: baseURL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -12,13 +12,12 @@ const instance = axios.create({
 instance.interceptors.request.use(
   (config) => {
     config.headers["Access-Control-Allow-Origin"] = "*";
-    config.headers["Access-Control-Allow-Credentials"] = "true";
     config.headers["Access-Control-Allow-Methods"] =
       "GET, PUT, DELETE, PATCH, OPTIONS";
-    const access_token = Cookies.get("access_token");
-    if (access_token) {
-      config.headers.Authorization = `Bearer ${access_token}`;
-      config.Authorization = `Bearer ${access_token}`;
+    config.headers["Content-Type"] = "application/json";
+    const token = Cookies.get("access_token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -26,20 +25,4 @@ instance.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
-instance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const statusCode = error.response ? error.response.status : null;
-    const navigate = useNavigate();
-    if (statusCode === 401) {
-      Cookies.set("LOGGED", false);
-      alert("Phiên đã hết hạn, vui lòng đăng nhập lại!") &&
-        navigate("/auth/sign-in");
-    } else {
-      throw error;
-    }
-  }
-);
-
 export default instance;

@@ -63,10 +63,7 @@ export function Configurator() {
       <div className="flex items-start justify-between px-6 pt-8 pb-6">
         <div>
           <Typography variant="h5" color="blue-gray">
-            Dashboard Configurator
-          </Typography>
-          <Typography className="font-normal text-blue-gray-600">
-            See our dashboard options.
+            Cấu hình thống kê
           </Typography>
         </div>
         <IconButton
@@ -80,7 +77,7 @@ export function Configurator() {
       <div className="py-4 px-6">
         <div className="mb-12">
           <Typography variant="h6" color="blue-gray">
-            Sidenav Colors
+            Màu thanh điều hướng
           </Typography>
           <div className="mt-3 flex items-center gap-2">
             {Object.keys(sidenavColors).map((color) => (
@@ -98,33 +95,33 @@ export function Configurator() {
         </div>
         <div className="mb-12">
           <Typography variant="h6" color="blue-gray">
-            Sidenav Types
+            Loại thanh điều hướng
           </Typography>
           <Typography variant="small" color="gray">
-            Choose between 3 different sidenav types.
+            Giao diện thanh điều hướng
           </Typography>
           <div className="mt-3 flex items-center gap-2">
             <Button
               variant={sidenavType === "dark" ? "gradient" : "outlined"}
               onClick={() => setSidenavType(dispatch, "dark")}
             >
-              Dark
+              Tối
             </Button>
-            <Button
+            {/* <Button
               variant={sidenavType === "transparent" ? "gradient" : "outlined"}
               onClick={() => setSidenavType(dispatch, "transparent")}
             >
               Transparent
-            </Button>
+            </Button> */}
             <Button
               variant={sidenavType === "white" ? "gradient" : "outlined"}
               onClick={() => setSidenavType(dispatch, "white")}
             >
-              White
+              Sáng
             </Button>
           </div>
         </div>
-        <div className="mb-12">
+        {/* <div className="mb-12">
           <hr />
           <div className="flex items-center justify-between py-5">
             <Typography variant="h6" color="blue-gray">
@@ -136,7 +133,7 @@ export function Configurator() {
               onChange={() => setFixedNavbar(dispatch, !fixedNavbar)}
             />
           </div>
-        </div>
+        </div> */}
       </div>
     </aside>
   );

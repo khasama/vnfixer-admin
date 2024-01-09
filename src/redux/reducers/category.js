@@ -1,40 +1,46 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import greenBookAPI from "@/api/greenBookAPI";
-const genresSlice = createSlice({
-  name: "genres",
+import greenBookAPI, { vnfixerAPI } from "@/api/greenBookAPI";
+const categorySlice = createSlice({
+  name: "category",
   initialState: { status: "idle", data: [] },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getGenres.pending, (state, action) => {
+      .addCase(getCategories.pending, (state, action) => {
         state.status = "loading";
       })
-      .addCase(getGenres.fulfilled, (state, action) => {
+      .addCase(getCategories.fulfilled, (state, action) => {
         state.data = action.payload;
         state.status = "idle";
       })
-      .addCase(getGenres.rejected, (state, action) => {
+      .addCase(getCategories.rejected, (state, action) => {
         state.status = "error";
       });
   },
 });
 
-export const getGenres = createAsyncThunk(
-  "books/getGenres",
-  async ({ limit = "20", page = "1" }) => {
+export const getCategories = createAsyncThunk(
+  "category/getCategories",
+  async (_, { rejectWithValue }) => {
     try {
-      const res = await greenBookAPI.getGenres(limit, page);
+      const res = await vnfixerAPI.getCategories();
       if (res.status === 200) {
-        const result = res.data;
-        return result.data;
+        return res.data.data;
+      } else {
+        throw rejectWithValue(res.data.message);
       }
     } catch (error) {
-      throw error;
+      if (error.payload) {
+        throw rejectWithValue(error.payload);
+      } else {
+        throw error;
+      }
     }
   }
 );
-export const createGenre = createAsyncThunk(
-  "books/createGenre",
+
+export const createcategory = createAsyncThunk(
+  "category/createcategory",
   async ({ name = "", description = "" }) => {
     try {
       const res = await greenBookAPI.createGenre(name, description);
@@ -49,8 +55,8 @@ export const createGenre = createAsyncThunk(
   }
 );
 
-export const updateGenre = createAsyncThunk(
-  "books/updateGenre",
+export const updatecategory = createAsyncThunk(
+  "category/updatecategory",
   async ({ id = "", name = "", description = "" }) => {
     try {
       const res = await greenBookAPI.updateGenre(id, name, description);
@@ -65,8 +71,8 @@ export const updateGenre = createAsyncThunk(
   }
 );
 
-export const deleteGenre = createAsyncThunk(
-  "books/deleteGenre",
+export const deletecategory = createAsyncThunk(
+  "category/deletecategory",
   async ({ id }) => {
     try {
       const res = await greenBookAPI.deleteGenre(id);
@@ -80,4 +86,4 @@ export const deleteGenre = createAsyncThunk(
   }
 );
 
-export default genresSlice;
+export default categorySlice;

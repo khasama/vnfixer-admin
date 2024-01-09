@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import greenBookAPI from "@/api/greenBookAPI";
+import greenBookAPI, { vnfixerAPI } from "@/api/greenBookAPI";
 const usersSlice = createSlice({
   name: "users",
   initialState: { status: "idle", data: [] },
@@ -19,23 +19,20 @@ const usersSlice = createSlice({
   },
 });
 
-export const getUsers = createAsyncThunk(
-  "books/getUsers",
-  async ({ limit = "20", page = "1" }) => {
-    try {
-      const res = await greenBookAPI.getUsers(limit, page);
-      if (res.status === 200) {
-        const result = res.data;
-        return result.data;
-      }
-    } catch (error) {
-      throw error;
+export const getUsers = createAsyncThunk("user/getUsers", async () => {
+  try {
+    const res = await vnfixerAPI.getUsers();
+    if (res.status === 200) {
+      const result = res.data.data;
+      return result;
     }
+  } catch (error) {
+    throw error;
   }
-);
+});
 
 export const updateUserRole = createAsyncThunk(
-  "books/updateUserRole",
+  "user/updateUserRole",
   async ({ id = "", listRole = "" }) => {
     try {
       const res = await greenBookAPI.updateRole(id, listRole);
@@ -50,7 +47,7 @@ export const updateUserRole = createAsyncThunk(
 );
 
 export const deleteUser = createAsyncThunk(
-  "books/deleteUser",
+  "user/deleteUser",
   async ({ id }) => {
     try {
       const res = await greenBookAPI.deleteUser(id);

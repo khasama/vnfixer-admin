@@ -1,57 +1,70 @@
+import { FaBuilding, FaLocationDot, FaToolbox, FaUsers } from "react-icons/fa6";
 import {
-  UserIcon,
-  PencilIcon,
-  BookOpenIcon,
-  CurrencyDollarIcon,
-} from "@heroicons/react/24/solid";
-import { dashboardSelector } from "@/redux/selectors";
+  agencySelector,
+  categorySelector,
+  usersSelector,
+} from "@/redux/selectors";
 import { useSelector } from "react-redux";
 
 export const statisticsCardsData = () => {
-  const dashboardData = useSelector(dashboardSelector);
+  const categories = useSelector(categorySelector);
+  const agencies = useSelector(agencySelector);
+  const users = useSelector(usersSelector);
+
+  const calculateTotalBranches = (agencies) => {
+    return agencies?.reduce((total, agency) => {
+      return total + agency?.branches?.length;
+    }, 0);
+  };
+
+  let agenciesLength = agencies?.length;
+  let categoriesLength = categories?.length;
+  let usersLength = users?.length;
+  let totalBranches = calculateTotalBranches(agencies);
+
   return [
     {
       color: "blue",
-      icon: CurrencyDollarIcon,
-      title: "Doanh thu sách",
-      value: `${dashboardData?.salary?.toLocaleString()}đ`,
+      icon: FaBuilding,
+      title: "Đại lý",
+      value: agenciesLength,
       footer: {
         color: "text-green-500",
-        value: "+15%",
-        label: "so với tuần trước",
+        value: "+7%",
+        label: "so với tháng trước",
       },
     },
     {
       color: "pink",
-      icon: UserIcon,
-      title: "Người dùng",
-      value: `${dashboardData?.nuser}`,
+      icon: FaLocationDot,
+      title: "Chi nhánh",
+      value: totalBranches,
       footer: {
         color: "text-green-500",
-        value: "+3%",
+        value: "+12%",
         label: "so với tháng trước",
       },
     },
     {
       color: "green",
-      icon: BookOpenIcon,
-      title: "Số đầu sách",
-      value: `${dashboardData?.nbooks}`,
+      icon: FaToolbox,
+      title: "Dịch vụ",
+      value: categoriesLength,
       footer: {
         color: "text-green-500",
         value: "+2%",
-        label: "so với tuần trước",
+        label: "so với tháng trước",
       },
     },
     {
       color: "orange",
-      icon: PencilIcon,
-      title: "Tác giả",
-      value: `${dashboardData?.nauthor}`,
+      icon: FaUsers,
+      title: "Người dùng",
+      value: usersLength,
       footer: {
         color: "text-green-500",
-        value: "+1%",
-        label: "so với tuần trước",
+        value: "+8%",
+        label: "so với tháng trước",
       },
     },
   ];

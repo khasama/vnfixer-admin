@@ -19,17 +19,19 @@ const dashboardSlice = createSlice({
   },
 });
 
-export const getDashboard = createAsyncThunk("dashboard/getDashboard", async ({day}) => {
-  try {
-    const res = await greenBookAPI.getDashboard();
-    if (res.status === 200) {
-      const result = res.data;
-      return result.data;
+export const getDashboard = createAsyncThunk(
+  "dashboard/getDashboard",
+  async ({ day }) => {
+    try {
+      const res = await greenBookAPI.getDashboard();
+      if (res.status === 200) {
+        const result = res.data;
+        return result.data;
+      }
+    } catch (error) {
+      throw error;
     }
-  } catch (error) {
-    throw error;
   }
-});
-
+);
 
 export default dashboardSlice;

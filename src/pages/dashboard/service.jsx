@@ -10,32 +10,59 @@ import {
   Input,
 } from "@material-tailwind/react";
 import { useDispatch, useSelector } from "react-redux";
-import { authorsSelector } from "@/redux/selectors";
+import { categorySelector } from "@/redux/selectors";
 import { useEffect, useState } from "react";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import { FaPencilAlt, FaPlus, FaSearch, FaTrashAlt } from "react-icons/fa";
 import {
-  createAuthor,
-  deleteAuthor,
-  getAuthors,
-  updateAuthor,
-} from "@/redux/reducers/authors";
+  // createGenre,
+  // deleteGenre,
+  getCategories,
+  // getGenres,
+  // updateGenre,
+} from "@/redux/reducers/category";
 import Tippy from "@tippyjs/react";
-import "tippy.js/dist/tippy.css";
 import { debounce } from "lodash";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { vnfixerAPI } from "@/api/greenBookAPI";
+import { getAgencies } from "@/redux/reducers/agency";
+import { getUsers } from "@/redux/reducers/users";
 
-export function Authors() {
+export function Service() {
   const [page, setPage] = useState(1);
-  const authors = useSelector(authorsSelector);
+  const categories = useSelector(categorySelector);
   const dispatch = useDispatch();
   const [showCreate, setShowCreate] = useState(false);
   const [color, setColor] = useState("#980303");
 
-  const [name, setName] = useState("");
-  const [authorId, setAuthorId] = useState("");
+  const [serviceName, setServiceName] = useState("");
+  const [description, setDescription] = useState("");
+  const [id, setId] = useState("");
+
+  const getAll = () => {
+    dispatch(getAgencies())
+      .then(unwrapResult)
+      .catch((err) => {
+        alert(err.message);
+      });
+    dispatch(getCategories())
+      .then(unwrapResult)
+      .catch((err) => {
+        alert(err.message);
+      });
+    dispatch(getUsers())
+      .then(unwrapResult)
+      .catch((err) => {
+        alert(err.message);
+      });
+  };
+
+  useEffect(() => {
+    getAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getItemProps = (index) => ({
     variant: page === index ? "filled" : "text",
@@ -55,82 +82,108 @@ export function Authors() {
     setPage(page - 1);
   };
 
-  const handleShowCreate = () => {
+  const handleShowUpdate = () => {
     setShowCreate(!showCreate);
   };
-
-  const handleDeleteAuthor = async (id) => {
-    const debouncedAuthor = debounce(getListAuthor, 1000);
-    try {
-      await dispatch(deleteAuthor({ id }));
-      notify("Đang xoá!");
-      debouncedAuthor();
-    } catch (error) {
-      console.log(error.message);
-      notify(error.message);
-    }
+  const handleClear = () => {
+    setId(() => {
+      setServiceName("");
+      setDescription("");
+      return "";
+    });
   };
 
-  const handleClearOldData = () => {
-    setName("");
+  const formatTextKey = (input) => {
+    const unaccentedString = input
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+    const stringWithoutSpaces = unaccentedString.replace(/\s+/g, "");
+    return stringWithoutSpaces;
   };
 
-  const handleClickCreateAuthor = () => {
-    handleClearOldData();
-    setAuthorId("");
-    setShowCreate(!showCreate);
-  };
-
-  const handleCreateAuthor = () => {
-    const debouncedAuthorCreate = debounce(getListAuthor, 1000);
-    if (name.length > 1) {
+  const handleCreateServices = async () => {
+    if (serviceName.length > 0 && description.length > 0) {
       try {
+        const data = {
+          name: serviceName,
+          description: description,
+          key: `category.${formatTextKey(serviceName)}`,
+        };
+        const res = await vnfixerAPI.createCategory(data);
+        if (res.status == 200) {
+          getAll();
+          notify("Đã tạo!");
+        } else {
+          notify("Đã xảy ra lỗi, vui lòng thử lại!");
+        }
         setShowCreate(false);
-        dispatch(
-          createAuthor({
-            name: name,
-            img: "",
-          })
-        ).then(notify("Đã tạo!"));
-        handleClearOldData();
-        debouncedAuthorCreate();
       } catch (error) {
         console.log(error.message);
       }
+      handleClear();
     } else {
       setColor("#980303");
       notify("Vui lòng kiểm tra lại thông tin!");
     }
   };
 
-  const handleClickUpdateAuthor = (name, id) => {
-    setName(name);
-    setAuthorId(id);
-  };
-
-  const handleUpdateAuthor = () => {
-    const debouncedAuthorUpdate = debounce(getListAuthor, 1000);
-    if (name.length > 1 && authorId) {
+  const handleUpdateServices = async () => {
+    if (serviceName.length > 0 && description.length > 0) {
+      setShowCreate(false);
       try {
-        setShowCreate(false);
-        dispatch(
-          updateAuthor({
-            id: authorId,
-            name: name,
-            image: "",
-          })
-        );
-        notify("Đã cập nhật!");
-        handleClearOldData();
-        debouncedAuthorUpdate();
+        const data = {
+          name: serviceName,
+          description: description,
+        };
+        const res = await vnfixerAPI.updateCategory(id, data);
+        if (res.status == 200) {
+          getAll();
+          notify("Đã cập nhật!");
+        } else {
+          notify("Đã xảy ra lỗi, vui lòng thử lại!");
+        }
       } catch (error) {
         console.log(error.message);
       }
+      handleClear();
     } else {
       setColor("#980303");
-      notify("Vui lòng kiểm tra lại!");
+      notify("Vui lòng kiểm tra lại thông tin!");
     }
   };
+
+  const handleClickUpdateService = (name, description, id) => {
+    setServiceName(() => {
+      setDescription(description);
+      setId(id);
+      return name;
+    });
+  };
+
+  // const handleUpdateGenre = () => {
+  //   const debouncedGenreUpdate = debounce(getListGenre, 1000);
+  //   if (name.length > 1 && genreId) {
+  //     try {
+  //       setShowCreate(false);
+  //       dispatch(
+  //         updateGenre({
+  //           id: genreId,
+  //           name: name,
+  //           description: "",
+  //         })
+  //       );
+  //       notify("Đã cập nhật!");
+  //       handleClearOldData();
+  //       debouncedGenreUpdate();
+  //     } catch (error) {
+  //       console.log(error.message);
+  //     }
+  //   } else {
+  //     setColor("#980303");
+  //     notify("Vui lòng kiểm tra lại!");
+  //   }
+  // };
 
   const notify = (content) =>
     toast(`🦄 ${content}`, {
@@ -145,18 +198,14 @@ export function Authors() {
       theme: "light",
     });
 
-  const getListAuthor = () => {
-    let row = "20";
-    dispatch(getAuthors({ limit: row, page: page }))
-      .then(unwrapResult)
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  useEffect(() => {
-    getListAuthor();
-  }, [page]);
+  // const getListGenre = () => {
+  //   let row = "20";
+  //   dispatch(getGenres({ limit: row, page: page }))
+  //     .then(unwrapResult)
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
 
   return (
     <>
@@ -175,7 +224,7 @@ export function Authors() {
             className="mb-8 flex w-full items-center gap-10 p-6"
           >
             <Typography variant="h5" color="white">
-              Tác giả
+              Dịch vụ
             </Typography>
             <div className="relative flex w-1/2 items-center  rounded-lg border-b-2 border-[white] py-2 px-4 shadow-md">
               <input
@@ -196,10 +245,7 @@ export function Authors() {
                 <span>
                   <Button
                     className="mr-2 rounded-2xl bg-[#0c9dd6] text-white"
-                    onClick={() => {
-                      handleClickCreateAuthor();
-                      handleShowCreate();
-                    }}
+                    onClick={() => handleShowUpdate()}
                   >
                     <FaPlus></FaPlus>
                   </Button>
@@ -209,19 +255,10 @@ export function Authors() {
             <table className="w-full min-w-[640px] table-auto">
               <thead>
                 <tr>
-                  {[
-                    "Tác giả",
-                    "Ngày tạo",
-                    "Đã xoá",
-                    "Ngày cập nhật",
-                    "",
-                    "",
-                  ].map((el, index) => (
+                  {["Tên dịch vụ", "Mô tả", "", ""].map((el, index) => (
                     <th
                       key={index}
-                      className={`border-b border-blue-gray-50 py-3 px-5 text-left ${
-                        el == "Ngày tạo" ? "hidden lg:block" : ""
-                      }`}
+                      className="border-b border-blue-gray-50 py-3 px-5 text-left"
                     >
                       <Typography
                         variant="small"
@@ -234,16 +271,16 @@ export function Authors() {
                 </tr>
               </thead>
               <tbody>
-                {authors &&
-                  authors.map((author, key) => {
+                {categories &&
+                  categories.map((category, key) => {
                     const className = `py-3 px-5 ${
-                      key === authors.length - 1
+                      key === categories.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"
                     }`;
 
                     return (
-                      <tr key={author.id}>
+                      <tr key={category.id}>
                         <td className={className}>
                           <div className="flex items-center gap-4">
                             <div>
@@ -252,40 +289,25 @@ export function Authors() {
                                 color="blue-gray"
                                 className="font-semibold"
                               >
-                                {author.name}
+                                {category.name}
                               </Typography>
                             </div>
                           </div>
                         </td>
-                        <td className={`${className} hidden lg:block`}>
-                          <Typography className="text-xs font-semibold text-blue-gray-600">
-                            {author?.created_at ?? ""}
-                          </Typography>
-                        </td>
-                        <td className={`${className}`}>
-                          <Chip
-                            variant="gradient"
-                            color={
-                              author.is_deleted && author.is_deleted == false
-                                ? "red"
-                                : "green"
-                            }
-                            value={JSON.stringify(author.is_deleted)}
-                            className="py-0.5 px-2 text-[11px] font-medium"
-                          />
-                        </td>
                         <td className={className}>
                           <Typography className="text-xs font-semibold text-blue-gray-600">
-                            {author.updated_at}
+                            {category?.description ?? ""}
                           </Typography>
                         </td>
+
                         <td
                           className={className}
                           onClick={() => {
-                            handleShowCreate(),
-                              handleClickUpdateAuthor(
-                                author?.name ?? "",
-                                author?.id ?? ""
+                            handleShowUpdate(),
+                              handleClickUpdateService(
+                                category?.name ?? "",
+                                category?.description ?? "",
+                                category?.id ?? ""
                               );
                           }}
                         >
@@ -303,7 +325,8 @@ export function Authors() {
                         </td>
                         <td
                           className={className}
-                          onClick={() => handleDeleteAuthor(author.id)}
+                          onClick={() => alert("")}
+                          // onClick={() => handleDeleteGenre(category.id)}
                         >
                           <Tippy content="Xoá">
                             <span>
@@ -353,42 +376,42 @@ export function Authors() {
           </div>
         </Card>
       </div>
-      {authors && showCreate && (
+      {categories && showCreate && (
         <>
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden">
-            <div className=" relative my-6 w-[100vw]">
-              {/*content*/}
-              <div className="relative mx-auto flex w-4/5 flex-col rounded-lg border-0 bg-[#f3fcf9f8] py-12 px-5 shadow-lg xl:w-4/6">
-                {/*header*/}
+            <div className=" relative my-6 w-[70vw]">
+              <div className="relative mx-auto flex w-4/5 flex-col rounded-lg border-0 bg-[#fffffff8] py-12 px-5 shadow-lg xl:w-4/6">
                 <div className="flex w-full flex-row items-center lg:w-4/5">
                   <button
                     className="absolute right-0 top-0 px-2 py-2 text-xl font-bold uppercase text-red-500 lg:px-6"
                     type="button"
-                    onClick={handleShowCreate}
+                    onClick={handleShowUpdate}
                   >
                     X
                   </button>
                 </div>
-                {/*body*/}
                 <div className="relative max-h-[70vh] flex-auto overflow-auto md:p-4">
-                  <div className="mx-auto flex max-w-7xl flex-col items-center rounded-lg p-1 sm:flex-row sm:items-start">
+                  <div className="mx-auto flex max-w-2xl flex-col items-center rounded-lg p-1 sm:flex-row sm:items-start">
                     <div
-                      className={`w-full rounded-2xl p-1 text-sm shadow-md shadow-[#bedcd7e1] sm:w-2/3 lg:p-5 ${"sm:w-full"}`}
+                      className={`w-full rounded-2xl p-1 text-sm shadow-md shadow-[#bedcd7e1] lg:p-5`}
                     >
-                      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                        <img
-                          className="mx-auto transition-transform duration-500 hover:scale-105"
-                          width={200}
-                          src={"/img/logo-ct.png"}
-                          alt={"Author"}
-                        />
-                        <div className="flex items-center p-2">
+                      <div className="flex w-full flex-col items-center justify-center gap-5">
+                        <div className=" flex w-full items-center p-2">
                           <Input
-                            onChange={(e) => setName(e.target.value)}
-                            value={name}
+                            onChange={(e) => setServiceName(e.target.value)}
+                            value={serviceName}
                             type="text"
                             variant="standard"
-                            label="Tên tác giả"
+                            label="Tên dịch vụ"
+                          />
+                        </div>
+                        <div className="flex w-full items-center p-2">
+                          <Input
+                            onChange={(e) => setDescription(e.target.value)}
+                            value={description}
+                            type="text"
+                            variant="standard"
+                            label="Mô tả"
                           />
                         </div>
                       </div>
@@ -398,9 +421,9 @@ export function Authors() {
                           <Button
                             type={"submit"}
                             onClick={() =>
-                              authorId
-                                ? handleUpdateAuthor()
-                                : handleCreateAuthor()
+                              id
+                                ? handleUpdateServices()
+                                : handleCreateServices()
                             }
                             className="text-md font-base md:text-md bg-[#0bcaca] p-2 text-white shadow-md shadow-[#5f5e5eb5] hover:shadow-none"
                           >
@@ -420,5 +443,3 @@ export function Authors() {
     </>
   );
 }
-
-export default Authors;

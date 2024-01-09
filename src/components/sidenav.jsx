@@ -43,14 +43,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
           sidenavType === "dark" ? "border-white/20" : "border-blue-gray-50"
         }`}
       >
-        <Link to="/" className="flex items-center gap-4 py-6 px-8">
-          <Avatar src={brandImg} size="sm" />
-          <Typography
-            variant="h6"
-            color={sidenavType === "dark" ? "white" : "blue-gray"}
-          >
-            {brandName}
-          </Typography>
+        <Link to="/" className="flex w-full items-center justify-center p-3">
+          <Avatar alt={brandName} src={brandImg} className="h-auto w-full" />
         </Link>
         <IconButton
           variant="text"
@@ -129,8 +123,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
 }
 
 Sidenav.defaultProps = {
-  brandImg: "/img/logo-ct.png",
-  brandName: "GreenBook",
+  brandImg: "/img/logo01.png",
+  brandName: "VNFIXER",
 };
 
 Sidenav.propTypes = {

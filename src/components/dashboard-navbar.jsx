@@ -75,16 +75,11 @@ export function DashboardNavbar() {
               }`}
             />
           </IconButton>
-          <Tippy
-            className="capitalize"
-            content={currentUser.firstName + " " + currentUser.lastName}
-          >
+          <Tippy className="capitalize" content={"Admin"}>
             <Avatar
               size="sm"
-              className="cursor-pointer"
-              onClick={() => alert("Coming soon!")}
               src={
-                currentUser?.avatar != "string"
+                currentUser?.avatar != ""
                   ? currentUser?.avatar
                   : "/img/defaultAdmin.png"
               }

@@ -1,18 +1,16 @@
 import { login } from "@/redux/reducers/auth";
-import { currentUserSelector, isLoggedInSelector } from "@/redux/selectors";
+import { isLoggedInSelector, messageErrorSelector } from "@/redux/selectors";
 import {
   Card,
   CardHeader,
   CardBody,
   CardFooter,
   Input,
-  Checkbox,
   Button,
   Typography,
 } from "@material-tailwind/react";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useEffect, useState } from "react";
-import jwt_decode from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,24 +19,24 @@ import { useNavigate } from "react-router-dom";
 export function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [color, setColor] = useState("#980303");
   const [middle, setMiddle] = useState(true);
-  const currentUser = useSelector(currentUserSelector);
   const isLoggedIn = useSelector(isLoggedInSelector);
+  const messageError = useSelector(messageErrorSelector);
+  const [key, setKey] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkError = () => {
-      if (isLoggedIn) {
-        navigate("/dashboard/home");
-      } else if (currentUser.length > 0) {
-        setColor("#980303");
-        notify(currentUser);
-      }
-    };
-    checkError();
-  }, [middle]);
+    if (messageError.length > 0) {
+      notify(messageError);
+    }
+  }, [key]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/dashboard/home");
+    }
+  }, [isLoggedIn]);
 
   // alert
   const notify = (content) =>
@@ -64,8 +62,10 @@ export function SignIn() {
         .then(unwrapResult)
         .then(setMiddle(!middle))
         .catch((err) => {
+          console.log(err);
           notify(err.message);
         });
+      setKey(!key);
     } else {
       notify(`Vui lòng kiểm tra lại thông tin!`);
     }
@@ -76,8 +76,8 @@ export function SignIn() {
       <ToastContainer
         toastStyle={{
           backgroundColor: "#b8fcf6ea",
-          color: color,
           marginTop: "10vh",
+          text: "red",
         }}
       />
       <img
@@ -123,9 +123,6 @@ export function SignIn() {
               size="lg"
               required
             />
-            <div className="-ml-2.5 text-xs">
-              <Checkbox label="Lưu mật khẩu" />
-            </div>
           </CardBody>
           <CardFooter className="pt-0">
             <Button

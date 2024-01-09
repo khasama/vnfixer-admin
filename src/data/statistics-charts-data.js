@@ -30,7 +30,7 @@ const view = () => {
   // };
 
   const handleDataPerDay = (data) => {
-    console.log("dataPerDay.lsalary", data?.lsalary);
+    // console.log("dataPerDay.lsalary", data?.lsalary);
     // Xử lý giá trị mới của dataPerDay ở đây
   };
 
@@ -109,7 +109,7 @@ export const statisticsChartsData = [
   },
   {
     color: "green",
-    title: "Lượng đầu sách",
+    title: "Lượng Yêu cầu",
     description: "Tăng 15% vào tuần này",
     footer: "Vừa cập nhật",
     chart: completedTasksChart,

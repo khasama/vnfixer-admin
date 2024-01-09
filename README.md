@@ -2,7 +2,7 @@
 
 # 💻How to run it
 
-Clone it via the command line "git clone https://gitlab.com/DuyThinh/VNFIXER-admin.git"
+Clone it via the command line "git clone https://github.com/khasama/vnfixer-admin.git"
 
 and
 
@@ -13,7 +13,7 @@ then run
 ### `npm run dev`
 
 Runs the app in the development mode.\
-Open [http://localhost:8080](http://localhost:8080) to view it in your browser.
+Open [http://localhost:8081](http://localhost:8081) to view it in your browser.
 
 ## 🌐Preview
 
@@ -25,38 +25,26 @@ Open [http://localhost:8080](http://localhost:8080) to view it in your browser.
 
 ![image](./src/assets/authPage.png)
 
-# Books page
+# Category page
 
 ![image](./src/assets/booksPage.png)
 
-# Edit book
-
-![image](./src/assets/editBook.png)
-
-# Genres page
-
-![image](./src/assets/genresPage.png)
-
-# Authors page
-
-![image](./src/assets/authorsPage.png)
-
-# coupons page
-
-![image](./src/assets/couponsPage.png)
-
-# create coupons
-
-![image](./src/assets/createCoupon.png)
-
-# deliveryFees page
-
-![image](./src/assets/deliveryFeesPage.png)
-
-# create deliveryFee
+# Edit category
 
 ![image](./src/assets/createDeliveryFee.png)
 
+# Agency page
+
+![image](./src/assets/authorsPage.png)
+
+# Edit agency
+
+![image](./src/assets/editBook.png)
+
+# User page
+
+![image](./src/assets/createCoupon.png)
+
 ## Demo
 
-# `https://VNFIXER-web.vercel.app/`
+# `Updating...`
